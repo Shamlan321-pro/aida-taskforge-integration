@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AIDA AI Chat Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .chat-container { max-width: 600px; margin: 0 auto; }
+        .messages { height: 400px; border: 1px solid #ccc; padding: 10px; overflow-y: auto; margin-bottom: 10px; }
+        .input-container { display: flex; gap: 10px; }
+        input[type="text"] { flex: 1; padding: 8px; }
+        button { padding: 8px 16px; }
+        .message { margin-bottom: 10px; }
+        .user { text-align: right; color: blue; }
+        .ai { text-align: left; color: green; }
+        .status { margin-bottom: 10px; font-weight: bold; }
+        .settings { margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; }
+        .settings input { margin: 5px; padding: 5px; width: 300px; }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <h1>AIDA AI Chat Test</h1>
+        
+        <div class="settings">
+            <h3>Settings</h3>
+            <div>
+                <label>API Server URL:</label><br>
+                <input type="text" id="apiUrl" value="http://localhost:5000" placeholder="API Server URL">
+            </div>
+            <div>
+                <label>ERPNext URL:</label><br>
+                <input type="text" id="erpnextUrl" value="http://localhost:8000" placeholder="ERPNext URL">
+            </div>
+            <div>
+                <label>Google API Key:</label><br>
+                <input type="password" id="googleApiKey" placeholder="Your Google API Key">
+            </div>
+            <button onclick="connectToAIDA()">Connect to AIDA</button>
+        </div>
+        
+        <div class="status" id="status">Disconnected</div>
+        <div class="messages" id="messages"></div>
+        <div class="input-container">
+            <input type="text" id="messageInput" placeholder="Type your message..." disabled>
+            <button onclick="sendMessage()" id="sendBtn" disabled>Send</button>
+        </div>
+    </div>
+
+    <script>
+        let sessionId = null;
+        let apiServerUrl = '';
+
+        function updateStatus(message, color = 'black') {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.style.color = color;
+        }
+
+        function addMessage(content, sender) {
+            const messages = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            messageDiv.textContent = `${sender.toUpperCase()}: ${content}`;
+            messages.appendChild(messageDiv);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        async function connectToAIDA() {
+            apiServerUrl = document.getElementById('apiUrl').value;
+            const erpnextUrl = document.getElementById('erpnextUrl').value;
+            const googleApiKey = document.getElementById('googleApiKey').value;
+
+            if (!apiServerUrl || !erpnextUrl || !googleApiKey) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            updateStatus('Connecting...', 'orange');
+
+            try {
+                const response = await fetch(`${apiServerUrl}/init_session`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        erpnext_url: erpnextUrl,
+                        username: 'Administrator',  // You can change this
+                        password: 'admin',          // You can change this
+                        google_api_key: googleApiKey
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    sessionId = data.session_id;
+                    updateStatus('Connected to AIDA!', 'green');
+                    document.getElementById('messageInput').disabled = false;
+                    document.getElementById('sendBtn').disabled = false;
+                    addMessage('Connected! How can I help you today?', 'ai');
+                } else {
+                    throw new Error(data.error || 'Connection failed');
+                }
+            } catch (error) {
+                updateStatus(`Connection failed: ${error.message}`, 'red');
+                console.error('Connection error:', error);
+            }
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+
+            if (!message || !sessionId) return;
+
+            addMessage(message, 'user');
+            input.value = '';
+            document.getElementById('sendBtn').disabled = true;
+
+            try {
+                const response = await fetch(`${apiServerUrl}/chat`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        session_id: sessionId,
+                        user_input: message
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    addMessage(data.response, 'ai');
+                } else {
+                    throw new Error(data.error || 'Chat failed');
+                }
+            } catch (error) {
+                addMessage(`Error: ${error.message}`, 'ai');
+                console.error('Chat error:', error);
+            } finally {
+                document.getElementById('sendBtn').disabled = false;
+            }
+        }
+
+        // Allow Enter key to send message
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>

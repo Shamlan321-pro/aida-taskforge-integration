@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AIDA Debug</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .debug-container { max-width: 800px; margin: 0 auto; }
+        .debug-section { margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; }
+        pre { background: #f5f5f5; padding: 10px; overflow-x: auto; }
+        button { padding: 10px 15px; margin: 5px; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <div class="debug-container">
+        <h1>AIDA Settings Debug</h1>
+        
+        <div class="debug-section">
+            <h3>1. Test Settings Loading</h3>
+            <button onclick="testSettings()">Load Settings</button>
+            <pre id="settings-result">Click "Load Settings" to test</pre>
+        </div>
+        
+        <div class="debug-section">
+            <h3>2. Test API Server Connection</h3>
+            <button onclick="testApiServer()">Test API Server</button>
+            <pre id="api-result">Click "Test API Server" to test</pre>
+        </div>
+        
+        <div class="debug-section">
+            <h3>3. Test Full Connection Flow</h3>
+            <button onclick="testFullConnection()">Test Full Connection</button>
+            <pre id="connection-result">Click "Test Full Connection" to test</pre>
+        </div>
+    </div>
+
+    <script>
+        async function testSettings() {
+            const resultEl = document.getElementById('settings-result');
+            resultEl.textContent = 'Loading...';
+            
+            try {
+                const response = await frappe.call({
+                    method: 'aida_taskforge_integration.api.get_settings'
+                });
+                
+                const settings = response.message;
+                const result = {
+                    success: true,
+                    settings: {
+                        ...settings,
+                        google_api_key: settings.google_api_key ? `*** (${settings.google_api_key.length} chars)` : 'EMPTY'
+                    }
+                };
+                
+                resultEl.textContent = JSON.stringify(result, null, 2);
+                resultEl.className = 'success';
+            } catch (error) {
+                resultEl.textContent = `Error: ${error.message}`;
+                resultEl.className = 'error';
+            }
+        }
+        
+        async function testApiServer() {
+            const resultEl = document.getElementById('api-result');
+            resultEl.textContent = 'Testing...';
+            
+            try {
+                const response = await frappe.call({
+                    method: 'aida_taskforge_integration.api.test_settings_connection'
+                });
+                
+                resultEl.textContent = JSON.stringify(response.message, null, 2);
+                resultEl.className = response.message.status === 'success' ? 'success' : 'error';
+            } catch (error) {
+                resultEl.textContent = `Error: ${error.message}`;
+                resultEl.className = 'error';
+            }
+        }
+        
+        async function testFullConnection() {
+            const resultEl = document.getElementById('connection-result');
+            resultEl.textContent = 'Testing full connection...';
+            
+            try {
+                // First get settings
+                const settingsResponse = await frappe.call({
+                    method: 'aida_taskforge_integration.api.get_settings'
+                });
+                
+                const settings = settingsResponse.message;
+                
+                if (!settings.google_api_key) {
+                    throw new Error('Google API key not configured');
+                }
+                
+                // Then test connection to API server
+                const payload = {
+                    erpnext_url: settings.erpnext_url || window.location.origin,
+                    username: 'session_token',
+                    password: 'session_token',
+                    google_api_key: settings.google_api_key,
+                    api_key: frappe.session.user,
+                    api_secret: frappe.get_cookie('sid'),
+                    mongo_uri: settings.mongo_uri || null
+                };
+                
+                const response = await fetch(`${settings.api_server_url}/init_session`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await response.json();
+                
+                const result = {
+                    success: response.ok,
+                    status: response.status,
+                    payload_sent: {
+                        ...payload,
+                        google_api_key: payload.google_api_key ? '***' : 'MISSING',
+                        api_secret: payload.api_secret ? '***' : 'MISSING'
+                    },
+                    api_response: data
+                };
+                
+                resultEl.textContent = JSON.stringify(result, null, 2);
+                resultEl.className = response.ok ? 'success' : 'error';
+                
+            } catch (error) {
+                resultEl.textContent = `Error: ${error.message}`;
+                resultEl.className = 'error';
+            }
+        }
+    </script>
+</body>
+</html>

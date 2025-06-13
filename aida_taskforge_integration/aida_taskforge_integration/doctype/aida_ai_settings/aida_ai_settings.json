@@ -1,0 +1,131 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2024-01-01 00:00:00",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "api_settings_section",
+  "api_server_url",
+  "google_api_key",
+  "erpnext_url",
+  "enable_floating_widget",
+  "username",
+  "password",
+  "api_key",
+  "api_secret",
+  "mongo_uri",
+  "column_break_1",
+  "use_api_token_auth",
+  "session_timeout",
+  "enable_aida_floating_widget"
+ ],
+ "fields": [
+  {
+   "fieldname": "api_settings_section",
+   "fieldtype": "Section Break",
+   "label": "AIDA API Settings"
+  },
+  {
+   "default": "http://localhost:5000",
+   "fieldname": "api_server_url",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "API Server URL",
+   "reqd": 1
+  },
+  {
+   "default": "https://app.taskforgehq.com",
+   "fieldname": "erpnext_url",
+   "fieldtype": "Data",
+   "label": "ERPNext URL",
+   "reqd": 1
+  },
+  {
+   "default": "Administrator",
+   "fieldname": "username",
+   "fieldtype": "Data",
+   "label": "Username"
+  },
+  {
+   "default": "admin",
+   "fieldname": "password",
+   "fieldtype": "Password",
+   "label": "Password"
+  },
+  {
+   "fieldname": "api_key",
+   "fieldtype": "Data",
+   "label": "API Key"
+  },
+  {
+   "fieldname": "api_secret",
+   "fieldtype": "Password",
+   "label": "API Secret"
+  },
+  {
+   "default": "AIzaSyDVATnHhFGI7TuR7n95Cv45w1LxfB3YWf8",
+   "fieldname": "google_api_key",
+   "fieldtype": "Password",
+   "label": "Google API Key",
+   "reqd": 1
+  },
+  {
+   "fieldname": "mongo_uri",
+   "fieldtype": "Data",
+   "label": "MongoDB URI"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "use_api_token_auth",
+   "fieldtype": "Check",
+   "label": "Use API Token Authentication"
+  },
+  {
+   "default": "30",
+   "fieldname": "session_timeout",
+   "fieldtype": "Int",
+   "label": "Session Timeout (minutes)"
+  },
+  {
+   "default": "1",
+   "fieldname": "enable_floating_widget",
+   "fieldtype": "Check",
+   "label": "Enable Floating Widget"
+  },
+  {
+   "default": "1",
+   "fieldname": "enable_aida_floating_widget",
+   "fieldtype": "Check",
+   "label": "Enable Floating Chat Widget"
+  }
+ ],
+ "issingle": 1,
+ "links": [],
+ "modified": "2025-06-13 02:16:39.010175",
+ "modified_by": "Administrator",
+ "module": "Aida Taskforge Integration",
+ "name": "AIDA AI Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
