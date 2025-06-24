@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AIDA Widget Test</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-container { max-width: 800px; margin: 0 auto; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { color: green; }
+        .error { color: red; }
+        .warning { color: orange; }
+        
+        /* Include the widget CSS directly */
+        .aida-float-widget {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+
+        .aida-float-button {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4285f4, #34a853);
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 6px 16px rgba(66, 133, 244, 0.4);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .aida-float-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 20px rgba(66, 133, 244, 0.5);
+        }
+
+        .aida-float-chat {
+            position: fixed;
+            bottom: 95px;
+            right: 20px;
+            width: 380px;
+            height: 550px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+            display: none;
+            flex-direction: column;
+            z-index: 9998;
+            animation: slideUp 0.3s ease;
+        }
+
+        .aida-float-chat.show {
+            display: flex;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .float-chat-header {
+            background: linear-gradient(135deg, #4285f4, #34a853);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 16px 16px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: background 0.2s ease;
+        }
+
+        .header-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .float-chat-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.2s ease;
+        }
+
+        .float-chat-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .chat-view, .settings-view {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .float-chat-messages {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+
+        .float-chat-input {
+            padding: 16px;
+            border-top: 1px solid #e9ecef;
+            background: white;
+            border-radius: 0 0 16px 16px;
+        }
+
+        .settings-view {
+            padding: 15px;
+            background: white;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            font-size: 12px;
+            color: #555;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .form-control {
+            font-size: 12px;
+            padding: 6px 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .form-text {
+            font-size: 10px;
+            color: #888;
+            margin-top: 3px;
+        }
+
+        .settings-actions {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .btn {
+            margin: 0 3px 5px 3px;
+            font-size: 11px;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-success { background: #28a745; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-light { background: #f8f9fa; color: #333; border: 1px solid #ddd; }
+
+        .auth-section {
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 12px;
+            margin: 15px 0;
+            background: #f9f9f9;
+        }
+
+        .manual-auth-fields {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+
+        .connection-status {
+            margin-top: 8px;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            padding: 4px 8px;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .status-indicator {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            margin-right: 6px;
+            flex-shrink: 0;
+        }
+
+        .status-indicator.connected {
+            background: #28a745;
+            box-shadow: 0 0 4px rgba(40, 167, 69, 0.3);
+        }
+
+        .status-indicator.disconnected {
+            background: #dc3545;
+        }
+
+        .status-indicator.connecting {
+            background: #ffc107;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>AIDA Widget Test Page</h1>
+        
+        <div class="test-section">
+            <h3>Test Results:</h3>
+            <div id="test-results">
+                <p>Loading tests...</p>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h3>Manual Widget Creation:</h3>
+            <button onclick="createWidget()" style="padding: 10px 20px; font-size: 14px;">Create AIDA Widget</button>
+            <button onclick="testWidget()" style="padding: 10px 20px; font-size: 14px;">Test Widget Functions</button>
+        </div>
+    </div>
+
+    <!-- Mock frappe object for testing -->
+    <script>
+        // Create mock frappe object if it doesn't exist
+        if (typeof frappe === 'undefined') {
+            window.frappe = {
+                session: { user: 'Administrator' },
+                get_cookie: function(name) { 
+                    const value = `; ${document.cookie}`;
+                    const parts = value.split(`; ${name}=`);
+                    if (parts.length === 2) return parts.pop().split(';').shift();
+                    return 'test-session-id';
+                },
+                show_alert: function(opts) { 
+                    alert(opts.message);
+                },
+                call: function(opts) {
+                    console.log('Mock frappe.call:', opts);
+                    if (opts.callback) opts.callback({ message: {} });
+                }
+            };
+        }
+
+        // Simplified AidaChatInterface for testing
+        class AidaChatInterface {
+            constructor(isFloating = false) {
+                this.isFloating = isFloating;
+                this.sessionId = null;
+                this.settings = null;
+                this.isConnected = false;
+                this.currentView = 'chat';
+                
+                this.init();
+            }
+            
+            async init() {
+                if (this.isFloating) {
+                    this.createFloatingWidget();
+                }
+                await this.loadUserSettings();
+            }
+            
+            createFloatingWidget() {
+                if (document.getElementById('aida-float-widget')) {
+                    return;
+                }
+                
+                const widgetHtml = `
+                    <div class="aida-float-widget" id="aida-float-widget">
+                        <button class="aida-float-button" id="aida-float-btn" title="AIDA AI Assistant">
+                            🤖
+                        </button>
+                        <div class="aida-float-chat" id="aida-float-chat">
+                            <div class="float-chat-header">
+                                <h4 id="aida-header-title">🤖 AIDA Assistant</h4>
+                                <div class="header-controls">
+                                    <button class="header-btn" id="aida-settings-btn" title="Settings">
+                                        ⚙️
+                                    </button>
+                                    <button class="float-chat-close" id="float-chat-close">×</button>
+                                </div>
+                            </div>
+                            
+                            <div class="chat-view" id="chat-view">
+                                <div class="float-chat-messages" id="float-chat-messages">
+                                    <div class="welcome-message">
+                                        <p>Hi! I'm AIDA, your ERPNext AI assistant.</p>
+                                        <p>Click the settings icon ⚙️ to configure your API credentials.</p>
+                                    </div>
+                                </div>
+                                <div class="float-chat-input">
+                                    <div style="display: flex;">
+                                        <input type="text" class="form-control" id="float-chat-input" 
+                                               placeholder="Configure settings first..." disabled style="flex: 1; margin-right: 5px;">
+                                        <button id="float-send-btn" disabled style="padding: 6px 10px;">
+                                            ➤
+                                        </button>
+                                    </div>
+                                    <div class="connection-status" id="float-connection-status">
+                                        <span class="status-indicator disconnected"></span>
+                                        <span class="status-text">Not configured</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="settings-view" id="settings-view" style="display: none;">
+                                <div class="settings-content">
+                                    <form id="aida-settings-form">
+                                        <div class="form-group">
+                                            <label for="api-server-url">API Server URL:</label>
+                                            <input type="text" class="form-control" id="api-server-url" 
+                                                   value="http://localhost:5000" placeholder="http://localhost:5000">
+                                            <small class="form-text">URL where your AIDA API server is running</small>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label for="google-api-key">Google API Key:</label>
+                                            <input type="password" class="form-control" id="google-api-key" 
+                                                   placeholder="Enter your Google Gemini API key">
+                                            <small class="form-text">Required for AI functionality</small>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label for="erpnext-url">ERPNext URL:</label>
+                                            <input type="text" class="form-control" id="erpnext-url" 
+                                                   placeholder="Auto-detected from current site">
+                                            <small class="form-text">Usually auto-detected correctly</small>
+                                        </div>
+                                        
+                                        <div class="auth-section">
+                                            <div class="form-group">
+                                                <label>
+                                                    <input type="checkbox" id="use-manual-auth"> Use Manual Login
+                                                </label>
+                                                <small class="form-text">Check this if session authentication doesn't work</small>
+                                            </div>
+                                            
+                                            <div class="manual-auth-fields" id="manual-auth-fields" style="display: none;">
+                                                <div class="form-group">
+                                                    <label for="erpnext-username">ERPNext Username:</label>
+                                                    <input type="text" class="form-control" id="erpnext-username" 
+                                                           placeholder="Administrator" value="Administrator">
+                                                </div>
+                                                
+                                                <div class="form-group">
+                                                    <label for="erpnext-password">ERPNext Password:</label>
+                                                    <input type="password" class="form-control" id="erpnext-password" 
+                                                           placeholder="Enter your ERPNext password">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="settings-actions">
+                                            <button type="button" class="btn btn-success" id="save-settings-btn">
+                                                💾 Save & Connect
+                                            </button>
+                                            <button type="button" class="btn btn-secondary" id="test-connection-btn">
+                                                🔌 Test Connection
+                                            </button>
+                                            <button type="button" class="btn btn-light" id="back-to-chat-btn">
+                                                ← Back to Chat
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.insertAdjacentHTML('beforeend', widgetHtml);
+                this.setupEvents();
+            }
+            
+            setupEvents() {
+                document.getElementById('aida-float-btn')?.addEventListener('click', () => {
+                    this.toggleFloatingChat();
+                });
+                
+                document.getElementById('float-chat-close')?.addEventListener('click', () => {
+                    this.hideFloatingChat();
+                });
+                
+                document.getElementById('aida-settings-btn')?.addEventListener('click', () => {
+                    this.showSettingsView();
+                });
+                
+                document.getElementById('back-to-chat-btn')?.addEventListener('click', () => {
+                    this.showChatView();
+                });
+                
+                document.getElementById('use-manual-auth')?.addEventListener('change', (e) => {
+                    document.getElementById('manual-auth-fields').style.display = 
+                        e.target.checked ? 'block' : 'none';
+                });
+                
+                document.getElementById('save-settings-btn')?.addEventListener('click', () => {
+                    this.saveSettings();
+                });
+                
+                document.getElementById('test-connection-btn')?.addEventListener('click', () => {
+                    this.testConnection();
+                });
+                
+                // Auto-fill ERPNext URL
+                if (document.getElementById('erpnext-url')) {
+                    document.getElementById('erpnext-url').value = window.location.origin;
+                }
+            }
+            
+            async loadUserSettings() {
+                try {
+                    const savedSettings = localStorage.getItem('aida_user_settings');
+                    if (savedSettings) {
+                        this.settings = JSON.parse(savedSettings);
+                        this.populateSettingsForm();
+                    } else {
+                        this.settings = {
+                            api_server_url: 'http://localhost:5000',
+                            erpnext_url: window.location.origin,
+                            google_api_key: '',
+                            use_manual_auth: false,
+                            username: 'Administrator',
+                            password: ''
+                        };
+                    }
+                } catch (error) {
+                    console.error('Failed to load settings:', error);
+                }
+            }
+            
+            populateSettingsForm() {
+                if (document.getElementById('api-server-url')) {
+                    document.getElementById('api-server-url').value = this.settings.api_server_url || 'http://localhost:5000';
+                    document.getElementById('erpnext-url').value = this.settings.erpnext_url || window.location.origin;
+                    document.getElementById('google-api-key').value = this.settings.google_api_key || '';
+                    document.getElementById('use-manual-auth').checked = this.settings.use_manual_auth || false;
+                    document.getElementById('erpnext-username').value = this.settings.username || 'Administrator';
+                    document.getElementById('erpnext-password').value = this.settings.password || '';
+                    
+                    document.getElementById('manual-auth-fields').style.display = 
+                        this.settings.use_manual_auth ? 'block' : 'none';
+                }
+            }
+            
+            saveSettings() {
+                const useManualAuth = document.getElementById('use-manual-auth').checked;
+                
+                const settings = {
+                    api_server_url: document.getElementById('api-server-url').value.trim(),
+                    erpnext_url: document.getElementById('erpnext-url').value.trim(),
+                    google_api_key: document.getElementById('google-api-key').value.trim(),
+                    use_manual_auth: useManualAuth,
+                    username: document.getElementById('erpnext-username').value.trim() || 'Administrator',
+                    password: document.getElementById('erpnext-password').value.trim()
+                };
+                
+                if (!settings.api_server_url || !settings.google_api_key) {
+                    alert('API Server URL and Google API Key are required');
+                    return;
+                }
+                
+                if (useManualAuth && !settings.password) {
+                    alert('Password is required when using manual authentication');
+                    return;
+                }
+                
+                localStorage.setItem('aida_user_settings', JSON.stringify(settings));
+                this.settings = settings;
+                
+                alert('Settings saved successfully!');
+                this.showChatView();
+                this.connectToAPI();
+            }
+            
+            async testConnection() {
+                const apiServerUrl = document.getElementById('api-server-url').value.trim();
+                
+                if (!apiServerUrl) {
+                    alert('Please enter API Server URL');
+                    return;
+                }
+                
+                try {
+                    const response = await fetch(`${apiServerUrl}/health`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        alert(`API server is reachable! Status: ${data.status}`);
+                    } else {
+                        alert(`API server returned status ${response.status}`);
+                    }
+                } catch (error) {
+                    alert(`Cannot reach API server: ${error.message}`);
+                }
+            }
+            
+            async connectToAPI() {
+                if (!this.settings || !this.settings.google_api_key) {
+                    this.updateConnectionStatus('disconnected', 'Settings required');
+                    return;
+                }
+                
+                this.updateConnectionStatus('connecting', 'Connecting...');
+                
+                try {
+                    let payload;
+                    
+                    if (this.settings.use_manual_auth) {
+                        payload = {
+                            erpnext_url: this.settings.erpnext_url,
+                            username: this.settings.username,
+                            password: this.settings.password,
+                            google_api_key: this.settings.google_api_key
+                        };
+                    } else {
+                        payload = {
+                            erpnext_url: this.settings.erpnext_url,
+                            username: 'session_token',
+                            password: 'session_token',
+                            google_api_key: this.settings.google_api_key,
+                            api_key: frappe.session.user,
+                            api_secret: frappe.get_cookie('sid')
+                        };
+                    }
+                    
+                    console.log('Connecting with payload:', {
+                        ...payload,
+                        google_api_key: '***',
+                        password: '***',
+                        api_secret: payload.api_secret ? '***' : undefined
+                    });
+                    
+                    const response = await fetch(`${this.settings.api_server_url}/init_session`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        this.sessionId = data.session_id;
+                        this.isConnected = true;
+                        this.updateConnectionStatus('connected', 'Connected to AIDA');
+                        document.getElementById('float-chat-input').disabled = false;
+                        document.getElementById('float-chat-input').placeholder = 'Ask me anything...';
+                        
+                        document.getElementById('float-chat-messages').innerHTML = `
+                            <div class="welcome-message">
+                                <p>✅ Connected to AIDA! Ready to help with ERPNext.</p>
+                            </div>
+                        `;
+                    } else {
+                        throw new Error(data.error || 'Connection failed');
+                    }
+                } catch (error) {
+                    console.error('Connection failed:', error);
+                    this.updateConnectionStatus('disconnected', `Error: ${error.message}`);
+                }
+            }
+            
+            showSettingsView() {
+                document.getElementById('chat-view').style.display = 'none';
+                document.getElementById('settings-view').style.display = 'block';
+                document.getElementById('aida-header-title').innerHTML = '⚙️ AIDA Settings';
+            }
+            
+            showChatView() {
+                document.getElementById('settings-view').style.display = 'none';
+                document.getElementById('chat-view').style.display = 'block';
+                document.getElementById('aida-header-title').innerHTML = '🤖 AIDA Assistant';
+            }
+            
+            toggleFloatingChat() {
+                const chatWindow = document.getElementById('aida-float-chat');
+                chatWindow.classList.toggle('show');
+            }
+            
+            hideFloatingChat() {
+                document.getElementById('aida-float-chat').classList.remove('show');
+            }
+            
+            updateConnectionStatus(status, text) {
+                const indicator = document.querySelector('.status-indicator');
+                const statusText = document.querySelector('.status-text');
+                if (indicator) indicator.className = `status-indicator ${status}`;
+                if (statusText) statusText.textContent = text;
+            }
+        }
+
+        // Test functions
+        function createWidget() {
+            try {
+                if (window.aidaWidget) {
+                    document.getElementById('aida-float-widget')?.remove();
+                }
+                window.aidaWidget = new AidaChatInterface(true);
+                updateTestResults('success', 'Widget created successfully! Check bottom-right corner.');
+            } catch (error) {
+                updateTestResults('error', `Widget creation failed: ${error.message}`);
+                console.error('Widget creation error:', error);
+            }
+        }
+
+        function testWidget() {
+            const results = [];
+            
+            // Test if widget exists
+            const widget = document.getElementById('aida-float-widget');
+            if (widget) {
+                results.push('✅ Widget DOM element exists');
+            } else {
+                results.push('❌ Widget DOM element not found');
+            }
+            
+            // Test if class exists
+            if (typeof AidaChatInterface !== 'undefined') {
+                results.push('✅ AidaChatInterface class loaded');
+            } else {
+                results.push('❌ AidaChatInterface class not found');
+            }
+            
+            // Test if instance exists
+            if (window.aidaWidget) {
+                results.push('✅ Widget instance exists');
+            } else {
+                results.push('❌ Widget instance not found');
+            }
+            
+            updateTestResults('info', results.join('<br>'));
+        }
+
+        function updateTestResults(type, message) {
+            const resultsEl = document.getElementById('test-results');
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : 'warning';
+            resultsEl.innerHTML = `<span class="${className}">${message}</span>`;
+        }
+
+        // Run initial tests
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                const results = [];
+                
+                results.push(`Document ready: ${document.readyState}`);
+                results.push(`Current URL: ${window.location.href}`);
+                results.push(`Frappe loaded: ${typeof frappe !== 'undefined'}`);
+                results.push(`jQuery loaded: ${typeof $ !== 'undefined'}`);
+                
+                updateTestResults('info', results.join('<br>'));
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

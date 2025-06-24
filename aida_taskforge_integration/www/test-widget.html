@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AIDA Widget Test</title>
+    <link rel="stylesheet" href="/assets/aida_taskforge_integration/css/gemini_chat.css">
+</head>
+<body>
+    <h1>AIDA Widget Test Page</h1>
+    <p>This page is for testing the AIDA floating widget.</p>
+    <p>You should see a floating blue button in the bottom right corner.</p>
+    
+    <script src="/assets/frappe/js/frappe-web.min.js"></script>
+    <script>
+        // Mock frappe objects for testing
+        if (typeof frappe === 'undefined') {
+            window.frappe = {
+                session: { user: 'test@example.com' },
+                get_cookie: function(name) { return 'test-session-id'; },
+                show_alert: function(opts) { alert(opts.message); },
+                call: function(opts) {
+                    console.log('Mock frappe.call:', opts);
+                    if (opts.callback) opts.callback({ message: {} });
+                }
+            };
+        }
+    </script>
+    <script src="/assets/aida_taskforge_integration/js/gemini_widget.js"></script>
+    
+    <script>
+        // Force create widget for testing
+        setTimeout(function() {
+            console.log('Test page: Creating AIDA widget...');
+            if (!window.aidaFloatingWidget) {
+                window.aidaFloatingWidget = new AidaChatInterface(true);
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

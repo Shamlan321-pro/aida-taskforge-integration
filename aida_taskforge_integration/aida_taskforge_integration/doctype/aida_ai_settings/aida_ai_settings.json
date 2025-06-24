@@ -96,18 +96,20 @@
    "default": "1",
    "fieldname": "enable_floating_widget",
    "fieldtype": "Check",
+   "is_virtual": 1,
    "label": "Enable Floating Widget"
   },
   {
    "default": "1",
    "fieldname": "enable_aida_floating_widget",
    "fieldtype": "Check",
+   "is_virtual": 1,
    "label": "Enable Floating Chat Widget"
   }
  ],
  "issingle": 1,
  "links": [],
- "modified": "2025-06-13 02:16:39.010175",
+ "modified": "2025-06-13 12:41:49.113313",
  "modified_by": "Administrator",
  "module": "Aida Taskforge Integration",
  "name": "AIDA AI Settings",

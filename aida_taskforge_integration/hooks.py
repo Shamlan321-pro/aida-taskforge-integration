@@ -1,7 +1,7 @@
 app_name = "aida_taskforge_integration"
 app_title = "Aida Taskforge Integration"
 app_publisher = "op"
-app_description = "op"
+app_description = "AIDA AI Assistant for ERPNext"
 app_email = "op@op.com"
 app_license = "mit"
 
@@ -25,12 +25,22 @@ app_license = "mit"
 # ------------------
 
 # include js, css files in header of desk.html
-# app_include_css = "/assets/aida_taskforge_integration/css/aida_taskforge_integration.css"
-# app_include_js = "/assets/aida_taskforge_integration/js/aida_taskforge_integration.js"
+app_include_css = [
+    "/assets/aida_taskforge_integration/css/aida_widget.css"
+]
+
+app_include_js = [
+    "/assets/aida_taskforge_integration/js/aida_widget.js"
+]
 
 # include js, css files in header of web template
-# web_include_css = "/assets/aida_taskforge_integration/css/aida_taskforge_integration.css"
-# web_include_js = "/assets/aida_taskforge_integration/js/aida_taskforge_integration.js"
+web_include_css = [
+    "/assets/aida_taskforge_integration/css/aida_widget.css"
+]
+
+web_include_js = [
+    "/assets/aida_taskforge_integration/js/aida_widget.js"
+]
 
 # include custom scss in every website theme (without file extension ".scss")
 # website_theme_scss = "aida_taskforge_integration/public/scss/website"
@@ -237,39 +247,18 @@ app_license = "mit"
 # 	"Logging DocType Name": 30  # days to retain logs
 # }
 
-# Add these to existing app_include_css or create if not exists
-app_include_css = getattr(globals(), 'app_include_css', []) + [
-    "/assets/aida_taskforge_integration/css/gemini_chat.css"
+# Boot session hook to initialize the widget
+boot_session = "aida_taskforge_integration.boot.boot_session"
+
+# Website route rules
+website_route_rules = [
+    {"from_route": "/aida-widget-test", "to_route": "aida-widget-test"},
+    {"from_route": "/test-widget", "to_route": "test-widget"}
 ]
 
-# Add these to existing app_include_js or create if not exists
-app_include_js = getattr(globals(), 'app_include_js', []) + [
-    "/assets/aida_taskforge_integration/js/gemini_widget.js"
-]
-
-# Add these to existing web_include_css or create if not exists
-web_include_css = getattr(globals(), 'web_include_css', []) + [
-    "/assets/aida_taskforge_integration/css/gemini_chat.css"
-]
-
-# Add these to existing web_include_js or create if not exists
-web_include_js = getattr(globals(), 'web_include_js', []) + [
-    "/assets/aida_taskforge_integration/js/gemini_widget.js"
-]
-
-# Add to existing website_route_rules or create if not exists
-website_route_rules = getattr(globals(), 'website_route_rules', []) + [
-    {"from_route": "/aida-chat", "to_route": "AIDA Chat"},
-]
-
-# Add to existing desktop_icons or create if not exists
-desktop_icons = getattr(globals(), 'desktop_icons', []) + [
-    {
-        "module_name": "AIDA AI Assistant",
-        "color": "#4285f4", 
-        "icon": "fa fa-comments",
-        "type": "page",
-        "link": "aida-chat"
-    }
-]
+# Website context
+website_context = {
+    "favicon": "/assets/aida_taskforge_integration/images/favicon.ico",
+    "splash_image": "/assets/aida_taskforge_integration/images/aida-logo.png"
+}
 
