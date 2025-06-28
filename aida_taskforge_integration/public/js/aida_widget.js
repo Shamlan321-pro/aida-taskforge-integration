@@ -220,7 +220,7 @@ class AidaWidget {
                                     <small>Required for AI functionality</small>
                                 </div>
                                 <div class="aida-form-group">
-                                    <label>ERPNext URL</label>
+                                    <label>TaskforgeHQ URL</label>
                                     <input type="text" id="aida-erpnext-url" readonly />
                                     <small>Auto-detected from current site</small>
                                 </div>
