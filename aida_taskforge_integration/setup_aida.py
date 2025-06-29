@@ -34,9 +34,9 @@ def setup_aida_app():
                 {
                     "fieldname": "erpnext_url",
                     "fieldtype": "Data", 
-                    "label": "ERPNext URL",
+                    "label": "TaskforgeHQ ERP URL",
                     "reqd": 1,
-                    "description": "URL of your ERPNext instance"
+                    "description": "URL of your TaskforgeHQ instance"
                 },
                 {
                     "fieldname": "google_api_key",

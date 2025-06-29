@@ -44,7 +44,7 @@
   {
    "fieldname": "erpnext_url",
    "fieldtype": "Data",
-   "label": "ERPNext URL"
+   "label": "TaskforgeHQ ERP URL"
   },
   {
    "fieldname": "use_manual_auth",

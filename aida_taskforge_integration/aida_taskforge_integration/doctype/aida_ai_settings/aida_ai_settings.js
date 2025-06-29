@@ -69,7 +69,7 @@ function debug_aida_settings(frm) {
                 // Create debug info
                 const debugInfo = {
                     'API Server URL': settings.api_server_url || 'EMPTY',
-                    'ERPNext URL': settings.erpnext_url || 'EMPTY', 
+                    'TaskforgeHQ ERP URL': settings.erpnext_url || 'EMPTY',
                     'Google API Key': settings.google_api_key ? `*** (${settings.google_api_key.length} chars)` : 'EMPTY',
                     'MongoDB URI': settings.mongo_uri || 'EMPTY',
                     'Use Token Auth': settings.use_api_token_auth,
