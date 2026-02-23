@@ -11,111 +11,51 @@ def setup_aida_app():
     except Exception as e:
         print(f"Patch fix error (might be already fixed): {e}")
     
-    # Check if DocType exists
-    if not frappe.db.exists("DocType", "AIDA AI Settings"):
-        print("Creating AIDA AI Settings DocType...")
+    # Create AIDA Conversation DocType first
+    if not frappe.db.exists("DocType", "AIDA Conversation"):
+        print("Creating AIDA Conversation DocType...")
         
-        # Create the DocType programmatically
-        doctype_dict = {
+        conversation_doctype = {
             "doctype": "DocType",
-            "name": "AIDA AI Settings",
+            "name": "AIDA Conversation",
             "module": "Aida Taskforge Integration",
-            "issingle": 1,
-            "custom": 1,  # Mark as custom to avoid developer mode issues
+            "custom": 1,
             "fields": [
                 {
-                    "fieldname": "api_server_url",
+                    "fieldname": "session_id",
                     "fieldtype": "Data",
-                    "label": "API Server URL",
+                    "label": "Session ID",
                     "reqd": 1,
-                    "default": "http://localhost:5000",
-                    "description": "URL where your AIDA API server is running"
+                    "in_list_view": 1
                 },
                 {
-                    "fieldname": "erpnext_url",
-                    "fieldtype": "Data", 
-                    "label": "ERPNext URL",
+                    "fieldname": "user",
+                    "fieldtype": "Link",
+                    "options": "User",
+                    "label": "User",
                     "reqd": 1,
-                    "default": "http://localhost:8000",
-                    "description": "URL of your ERPNext instance"
+                    "in_list_view": 1
                 },
                 {
-                    "fieldname": "google_api_key",
-                    "fieldtype": "Password",
-                    "label": "Google API Key",
+                    "fieldname": "message_type",
+                    "fieldtype": "Select",
+                    "options": "user\nai",
+                    "label": "Message Type",
                     "reqd": 1,
-                    "default": "",
-                    "description": "Your Google Gemini API key (required for AI functionality)"
+                    "in_list_view": 1
                 },
                 {
-                    "fieldname": "mongo_uri",
-                    "fieldtype": "Data",
-                    "label": "MongoDB URI",
-                    "default": "",
-                    "description": "Optional: MongoDB connection string for conversation history (e.g., mongodb://localhost:27017/aida)"
+                    "fieldname": "message",
+                    "fieldtype": "Long Text",
+                    "label": "Message",
+                    "reqd": 1
                 },
                 {
-                    "fieldname": "column_break_1",
-                    "fieldtype": "Column Break"
-                },
-                {
-                    "fieldname": "use_api_token_auth",
-                    "fieldtype": "Check",
-                    "label": "Use API Token Authentication",
-                    "default": 1,
-                    "description": "Use session tokens instead of username/password for ERPNext authentication"
-                },
-                {
-                    "fieldname": "enable_floating_widget",
-                    "fieldtype": "Check",
-                    "label": "Enable Floating Widget",
-                    "default": 1,
-                    "description": "Show floating chat widget on all pages"
-                },
-                {
-                    "fieldname": "session_timeout",
-                    "fieldtype": "Int",
-                    "label": "Session Timeout (minutes)",
-                    "default": 30,
-                    "description": "How long to keep chat sessions active"
-                },
-                {
-                    "fieldname": "section_break_auth",
-                    "fieldtype": "Section Break",
-                    "label": "Authentication Settings",
-                    "description": "Configure how AIDA connects to ERPNext"
-                },
-                {
-                    "fieldname": "username",
-                    "fieldtype": "Data",
-                    "label": "ERPNext Username",
-                    "default": "Administrator",
-                    "depends_on": "eval:!doc.use_api_token_auth",
-                    "description": "Username for ERPNext login (only needed if not using token auth)"
-                },
-                {
-                    "fieldname": "password",
-                    "fieldtype": "Password",
-                    "label": "ERPNext Password",
-                    "default": "",
-                    "depends_on": "eval:!doc.use_api_token_auth",
-                    "description": "Password for ERPNext login (only needed if not using token auth)"
-                },
-                {
-                    "fieldname": "api_key",
-                    "fieldtype": "Data",
-                    "label": "API Key",
-                    "default": "",
-                    "depends_on": "eval:doc.use_api_token_auth",
-                    "description": "ERPNext API Key (generated from User settings)"
-                },
-                {
-                    "fieldname": "api_secret",
-                    "fieldtype": "Password",
-                    "label": "API Secret",
-                    "default": "",
-                    "depends_on": "eval:doc.use_api_token_auth",
-                    "description": "ERPNext API Secret (generated from User settings)"
+                    "fieldname": "timestamp",
+                    "fieldtype": "Datetime",
+                    "label": "Timestamp",
+                    "default": "now",
+                    "in_list_view": 1
                 }
             ],
             "permissions": [
@@ -127,9 +67,132 @@ def setup_aida_app():
                     "delete": 1
                 },
                 {
-                    "role": "Administrator",
+                    "role": "All",
                     "read": 1,
-                    "write": 1
+                    "write": 1,
+                    "create": 1
+                }
+            ]
+        }
+        
+        doc = frappe.get_doc(conversation_doctype)
+        doc.insert(ignore_permissions=True)
+        frappe.db.commit()
+        print("✓ AIDA Conversation DocType created successfully")
+    else:
+        print("✓ AIDA Conversation DocType already exists")
+
+    # Create AIDA User Settings DocType
+    if not frappe.db.exists("DocType", "AIDA User Settings"):
+        print("Creating AIDA User Settings DocType...")
+        
+        user_settings_doctype = {
+            "doctype": "DocType",
+            "name": "AIDA User Settings",
+            "module": "Aida Taskforge Integration",
+            "custom": 1,
+            "fields": [
+                {
+                    "fieldname": "user",
+                    "fieldtype": "Link",
+                    "options": "User",
+                    "label": "User",
+                    "reqd": 1,
+                    "unique": 1
+                },
+                {
+                    "fieldname": "api_server_url",
+                    "fieldtype": "Data",
+                    "label": "API Server URL",
+                    "default": "http://localhost:5000"
+                },
+                {
+                    "fieldname": "google_api_key",
+                    "fieldtype": "Password",
+                    "label": "Google API Key"
+                },
+                {
+                    "fieldname": "current_session_id",
+                    "fieldtype": "Data",
+                    "label": "Current Session ID"
+                },
+                {
+                    "fieldname": "configured",
+                    "fieldtype": "Check",
+                    "label": "Is Configured",
+                    "default": 0
+                }
+            ],
+            "permissions": [
+                {
+                    "role": "System Manager",
+                    "read": 1,
+                    "write": 1,
+                    "create": 1,
+                    "delete": 1
+                },
+                {
+                    "role": "All",
+                    "read": 1,
+                    "write": 1,
+                    "create": 1
+                }
+            ]
+        }
+        
+        doc = frappe.get_doc(user_settings_doctype)
+        doc.insert(ignore_permissions=True)
+        frappe.db.commit()
+        print("✓ AIDA User Settings DocType created successfully")
+    else:
+        print("✓ AIDA User Settings DocType already exists")
+    
+    # Check if AIDA AI Settings DocType exists
+    if not frappe.db.exists("DocType", "AIDA AI Settings"):
+        print("Creating AIDA AI Settings DocType...")
+        
+        # Create the DocType programmatically with minimal fields
+        doctype_dict = {
+            "doctype": "DocType",
+            "name": "AIDA AI Settings",
+            "module": "Aida Taskforge Integration",
+            "issingle": 1,
+            "custom": 1,
+            "fields": [
+                {
+                    "fieldname": "api_server_url",
+                    "fieldtype": "Data",
+                    "label": "API Server URL",
+                    "default": "http://localhost:5000",
+                    "description": "URL where your AIDA API server is running"
+                },
+                {
+                    "fieldname": "google_api_key",
+                    "fieldtype": "Password",
+                    "label": "Google API Key",
+                    "description": "Your Google Gemini API key"
+                },
+                {
+                    "fieldname": "erpnext_url",
+                    "fieldtype": "Data",
+                    "label": "TaskforgeHQ ERP URL",
+                    "description": "URL of your TaskforgeHQ instance"
+                },
+                {
+                    "fieldname": "enable_floating_widget",
+                    "fieldtype": "Check",
+                    "label": "Enable Floating Widget",
+                    "default": 1,
+                    "description": "Show floating chat widget on all pages"
+                }
+            ],
+            "permissions": [
+                {
+                    "role": "System Manager",
+                    "read": 1,
+                    "write": 1,
+                    "create": 1,
+                    "delete": 1
                 }
             ]
         }
@@ -141,39 +204,41 @@ def setup_aida_app():
     else:
         print("✓ AIDA AI Settings DocType already exists")
 
-    # Create a default settings record (the defaults will auto-populate from field definitions)
+    # Create a default settings record
     if not frappe.db.exists("AIDA AI Settings", "AIDA AI Settings"):
         settings = frappe.new_doc("AIDA AI Settings")
         settings.name = "AIDA AI Settings"
-        # Set the ERPNext URL to exactly match the current site
-        current_site_url = frappe.utils.get_url()
-        settings.erpnext_url = current_site_url
-        settings.api_server_url = "http://localhost:5000"  # Ensure this is set
-        print(f"Setting ERPNext URL to: {current_site_url}")
+        settings.api_server_url = "http://localhost:5000"
+        settings.erpnext_url = frappe.utils.get_url()
+        settings.enable_floating_widget = 1
         settings.insert(ignore_permissions=True)
         frappe.db.commit()
-        print("✓ Default AIDA AI Settings created with default values")
+        print("✓ Default AIDA AI Settings created")
     else:
         print("✓ AIDA AI Settings record already exists")
 
-    # Create workspace if needed
-    if not frappe.db.exists("Workspace", "AIDA AI Assistant"):
-        workspace = frappe.new_doc("Workspace")
-        workspace.name = "AIDA AI Assistant"
-        workspace.title = "AIDA AI Assistant"
-        workspace.icon = "robot"
-        workspace.public = 1
-        workspace.module = "Aida Taskforge Integration"
-        workspace.insert(ignore_permissions=True)
-        frappe.db.commit()
-        print("✓ AIDA AI Assistant workspace created")
-    else:
-        print("✓ AIDA AI Assistant workspace already exists")
+    frappe.clear_cache()
+    print("\n🎉 Setup complete!")
+    print("📍 Visit /aida-widget-test to test the widget.")
+    print("📍 The widget should automatically appear on all pages.")
+    print("📍 Configure settings by searching 'AIDA AI Settings' in the awesome bar.")
+
+if __name__ == "__main__":
+    setup_aida_app()
+            workspace.public = 1
+            workspace.module = "Aida Taskforge Integration"
+            workspace.insert(ignore_permissions=True)
+            frappe.db.commit()
+            print("✓ AIDA AI Assistant workspace created")
+        else:
+            print("✓ AIDA AI Assistant workspace already exists")
+    except Exception as e:
+        print(f"Note: Could not create workspace (this is optional): {e}")
 
     frappe.clear_cache()
-    print("\n🎉 Setup complete! You should now see AIDA AI Settings in your system.")
-    print("📍 Search for 'AIDA AI Settings' in the awesome bar to configure the API.")
-    print("🚀 Visit /aida-test to test the chat interface.")
+    print("\n🎉 Setup complete!")
+    print("📍 Visit /aida-widget-test to test the widget.")
+    print("📍 The widget should automatically appear on all pages.")
 
 if __name__ == "__main__":
     setup_aida_app()

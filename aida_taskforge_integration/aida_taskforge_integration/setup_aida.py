@@ -50,8 +50,8 @@ def setup_aida_app():
                 {
                     "fieldname": "erpnext_url",
                     "fieldtype": "Data",
-                    "label": "ERPNext URL",
-                    "description": "URL of your ERPNext instance"
+                    "label": "TaskforgeHQ URL",
+                    "description": "URL of your TaskforgeHQ instance"
                 },
                 {
                     "fieldname": "enable_floating_widget",
